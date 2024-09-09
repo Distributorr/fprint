@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fingerabdruck-Scanner</title>
+    <title>Futuristischer Fingerabdruck-Scanner</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: #0d0d0d;
+            color: #fff;
         }
 
         .scanner-container {
@@ -23,41 +23,50 @@
             align-items: center;
             padding: 20px;
             border: 2px solid #333;
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            background-color: #1a1a1a;
+            box-shadow: 0px 10px 30px rgba(0, 255, 255, 0.4);
         }
 
         h1 {
             margin-bottom: 20px;
+            color: #00ffff;
         }
 
         .scanner {
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            background-color: #d3d3d3;
+            background: radial-gradient(circle, #00ffff 0%, #003333 70%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             cursor: pointer;
             margin-bottom: 20px;
+            animation: glow 2s infinite alternate;
         }
 
-        .scanner::before {
-            content: '';
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 5px solid #007BFF;
-            position: absolute;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+        .scanner.active {
+            animation: scanGlow 1s infinite;
         }
 
-        .scanner.active::before {
-            opacity: 1;
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            }
+            100% {
+                box-shadow: 0 0 40px #00ffff, 0 0 80px #00ffff, 0 0 120px #00ffff;
+            }
+        }
+
+        @keyframes scanGlow {
+            0% {
+                box-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99, 0 0 60px #00ff99;
+            }
+            100% {
+                box-shadow: 0 0 40px #00ff99, 0 0 80px #00ff99, 0 0 120px #00ff99;
+            }
         }
 
         .fingerprint-icon {
@@ -65,8 +74,14 @@
             height: 80px;
         }
 
+        .loading-text {
+            display: none;
+            color: #00ff99;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
         .device-info {
-            margin-top: 20px;
             display: none;
             text-align: center;
         }
@@ -75,16 +90,23 @@
             margin: 5px 0;
         }
 
-        .loading-text {
-            display: none;
-            color: #007BFF;
-            font-size: 16px;
+        /* Mobile-Optimierung */
+        @media screen and (max-width: 600px) {
+            .scanner {
+                width: 120px;
+                height: 120px;
+            }
+
+            .fingerprint-icon {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="scanner-container">
-        <h1>Fingerabdruck-Scanner</h1>
+        <h1>Futuristischer Fingerabdruck-Scanner</h1>
         <div class="scanner" id="fingerprintScanner">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Fingerprint_picture.svg/512px-Fingerprint_picture.svg.png" alt="Fingerabdruck" class="fingerprint-icon">
         </div>
@@ -93,36 +115,61 @@
             <p><strong>Gerätename:</strong> <span id="deviceName"></span></p>
             <p><strong>Plattform:</strong> <span id="platform"></span></p>
             <p><strong>Akkustand:</strong> <span id="batteryLevel"></span>%</p>
+            <p><strong>Browser:</strong> <span id="browser"></span></p>
+            <p><strong>Bildschirmgröße:</strong> <span id="screenSize"></span></p>
+            <p><strong>Sprache:</strong> <span id="language"></span></p>
+            <p><strong>Online-Status:</strong> <span id="onlineStatus"></span></p>
         </div>
     </div>
 
     <script>
-        // Fingerabdruck Scanner Simulation
         const scanner = document.getElementById('fingerprintScanner');
         const loadingText = document.getElementById('loadingText');
         const deviceInfo = document.getElementById('deviceInfo');
         const deviceName = document.getElementById('deviceName');
         const platform = document.getElementById('platform');
         const batteryLevel = document.getElementById('batteryLevel');
+        const browser = document.getElementById('browser');
+        const screenSize = document.getElementById('screenSize');
+        const language = document.getElementById('language');
+        const onlineStatus = document.getElementById('onlineStatus');
 
-        scanner.addEventListener('click', () => {
+        let scanTimeout;
+        let holdStartTime;
+
+        // Fingerabdruck-Scanner Ereignis (Finger halten)
+        scanner.addEventListener('mousedown', () => {
+            holdStartTime = Date.now();
             scanner.classList.add('active');
             loadingText.style.display = 'block';
             deviceInfo.style.display = 'none';
 
-            // Simuliere Scan- und Ladezeit
-            setTimeout(() => {
+            scanTimeout = setTimeout(() => {
                 scanner.classList.remove('active');
                 loadingText.style.display = 'none';
                 showDeviceInfo();
-            }, 2000);
+            }, 5000); // Scan dauert 5 Sekunden
         });
 
-        // Zeige Gerätedaten
+        // Finger loslassen, Scan abbrechen wenn unter 5 Sekunden
+        scanner.addEventListener('mouseup', () => {
+            if (Date.now() - holdStartTime < 5000) {
+                clearTimeout(scanTimeout);
+                scanner.classList.remove('active');
+                loadingText.style.display = 'none';
+                alert('Scan abgebrochen. Bitte halten Sie den Finger 5 Sekunden lang auf dem Scanner.');
+            }
+        });
+
+        // Erfasse Gerätedaten
         function showDeviceInfo() {
             deviceName.textContent = navigator.userAgent;
             platform.textContent = navigator.platform;
-            
+            browser.textContent = navigator.appVersion;
+            screenSize.textContent = `${window.innerWidth} x ${window.innerHeight}`;
+            language.textContent = navigator.language;
+            onlineStatus.textContent = navigator.onLine ? 'Online' : 'Offline';
+
             // Batterie API verwenden, um Akkustand abzurufen
             navigator.getBattery().then(function(battery) {
                 batteryLevel.textContent = Math.round(battery.level * 100);
