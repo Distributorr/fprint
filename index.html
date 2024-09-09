@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fingerabdruck-Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .scanner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .scanner {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #d3d3d3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .scanner::before {
+            content: '';
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 5px solid #007BFF;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .scanner.active::before {
+            opacity: 1;
+        }
+
+        .fingerprint-icon {
+            width: 80px;
+            height: 80px;
+        }
+
+        .device-info {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .device-info p {
+            margin: 5px 0;
+        }
+
+        .loading-text {
+            display: none;
+            color: #007BFF;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-container">
+        <h1>Fingerabdruck-Scanner</h1>
+        <div class="scanner" id="fingerprintScanner">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Fingerprint_picture.svg/512px-Fingerprint_picture.svg.png" alt="Fingerabdruck" class="fingerprint-icon">
+        </div>
+        <div class="loading-text" id="loadingText">Fingerabdruck wird gescannt...</div>
+        <div class="device-info" id="deviceInfo">
+            <p><strong>Gerätename:</strong> <span id="deviceName"></span></p>
+            <p><strong>Plattform:</strong> <span id="platform"></span></p>
+            <p><strong>Akkustand:</strong> <span id="batteryLevel"></span>%</p>
+        </div>
+    </div>
+
+    <script>
+        // Fingerabdruck Scanner Simulation
+        const scanner = document.getElementById('fingerprintScanner');
+        const loadingText = document.getElementById('loadingText');
+        const deviceInfo = document.getElementById('deviceInfo');
+        const deviceName = document.getElementById('deviceName');
+        const platform = document.getElementById('platform');
+        const batteryLevel = document.getElementById('batteryLevel');
+
+        scanner.addEventListener('click', () => {
+            scanner.classList.add('active');
+            loadingText.style.display = 'block';
+            deviceInfo.style.display = 'none';
+
+            // Simuliere Scan- und Ladezeit
+            setTimeout(() => {
+                scanner.classList.remove('active');
+                loadingText.style.display = 'none';
+                showDeviceInfo();
+            }, 2000);
+        });
+
+        // Zeige Gerätedaten
+        function showDeviceInfo() {
+            deviceName.textContent = navigator.userAgent;
+            platform.textContent = navigator.platform;
+            
+            // Batterie API verwenden, um Akkustand abzurufen
+            navigator.getBattery().then(function(battery) {
+                batteryLevel.textContent = Math.round(battery.level * 100);
+            });
+
+            deviceInfo.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
